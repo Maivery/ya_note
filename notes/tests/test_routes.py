@@ -37,28 +37,35 @@ class TestRoutes(TestCase):
 
     def test_redirect_for_anonymous_client(self):
         login_url = reverse('users:login')
-        for name in ('notes:edit', 'notes:delete'):
+        urls = (
+            ('notes:list', None),
+            ('notes:add', None),
+            ('notes:detail', (self.note.slug,)),
+            ('notes:edit', (self.note.slug,)),
+            ('notes:delete', (self.note.slug,))
+        )
+        for name, args in urls:
             with self.subTest(name=name):
-                url = reverse(name, args=(self.note.slug,))
+                url = reverse(name, args=args)
                 redirect_url = f'{login_url}?next={url}'
                 response = self.client.get(url)
                 self.assertRedirects(response, redirect_url)
 
     def test_pages_availability(self):
         urls = (
-            ('notes:home', None,),
-            ('users:login', None),
-            ('users:logout', None),
-            ('users:signup', None),
+            ('notes:home'),
+            ('users:login'),
+            ('users:logout'),
+            ('users:signup'),
         )
 
-        for name, args in urls:
+        for name in urls:
             with self.subTest(name=name):
-                url = reverse(name, args=args)
+                url = reverse(name)
                 response = self.client.get(url)
                 self.assertEqual(response.status_code, HTTPStatus.OK)
 
-    def test_pages_login_availability(self):
+    def test_pages_autorized_availability(self):
         self.user = self.author
         urls = (
             ('notes:list', None),
