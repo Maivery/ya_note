@@ -40,6 +40,7 @@ class TestRoutes(TestCase):
         urls = (
             ('notes:list', None),
             ('notes:add', None),
+            ('notes:success', None),
             ('notes:detail', (self.note.slug,)),
             ('notes:edit', (self.note.slug,)),
             ('notes:delete', (self.note.slug,))
@@ -71,6 +72,7 @@ class TestRoutes(TestCase):
             ('notes:list', None),
             ('notes:detail', (self.note.slug,)),
             ('notes:add', None),
+            ('notes:success', None)
         )
 
         for name, args in urls:
