@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from pytils.translit import slugify
 
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
@@ -34,8 +35,7 @@ class TestNoteCreation(TestCase):
 
     def test_user_can_create_note(self):
         self.auth_client.post(self.url, data=self.form_data)
-        notes_count = Note.objects.count()
-        self.assertEqual(notes_count, 1)
+        self.assertEqual(Note.objects.count(), 1)
         note = Note.objects.get()
         self.assertEqual(note.title, self.NOTE_TITLE)
         self.assertEqual(note.text, self.NOTE_TEXT)
@@ -56,8 +56,16 @@ class TestNoteCreation(TestCase):
             field='slug',
             errors=f'{self.NOTE_SLUG}{WARNING}'
         )
-        notes_count = Note.objects.count()
-        self.assertEqual(notes_count, 1)
+        self.assertEqual(Note.objects.count(), 1)
+
+    def test_empty_slug(self):
+        self.form_data.pop('slug')
+        response = self.auth_client.post(self.url, data=self.form_data)
+        self.assertRedirects(response, reverse('notes:success'))
+        self.assertEqual(Note.objects.count(), 1)
+        new_note = Note.objects.get()
+        expected_slug = slugify(self.form_data['title'])
+        assert new_note.slug == expected_slug
 
 
 class TestNoteEditDelete(TestCase):
